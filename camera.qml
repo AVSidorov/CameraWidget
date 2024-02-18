@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 
 Item{
     id: root
+    anchors.fill: parent
     width: 500
     height: 500
 
@@ -21,8 +22,7 @@ Item{
         clip: true
 
 
-
-        Image {
+        Image{
             id: frameview
             width: 900
             height: 900
@@ -66,6 +66,7 @@ Item{
                 frameview.y = 0
                 frameview.width = parent.width
                 frameview.height = parent.height
+                // root.msgSignal("Hello from QML")
             };
 
             onWheel: (wheel)=> {
@@ -84,8 +85,30 @@ Item{
 
         }
 
-    }
 
+
+        MouseArea{
+            id: mouseAreaLeft
+            anchors.left: parent.left
+            anchors.top: parent.top
+            width: 33
+            height: parent.height
+            hoverEnabled: true;
+        }
+        Rectangle{
+            id: leftInfo
+            color: "gray"
+            opacity:0.3
+            visible: mouseAreaLeft.containsMouse | mouseAreaLeftInfo.containsMouse
+            width: parent.width/5
+            height: parent.height
+            MouseArea{
+                id: mouseAreaLeftInfo
+                anchors.fill: parent
+                hoverEnabled: true
+            }
+        }
+    }
 
  }
 
