@@ -2,7 +2,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QPixmap>
-#include <QGridLayout>
+
 
 #include "ViewPort.h"
 
@@ -18,13 +18,6 @@ int main(int argc, char *argv[])
 
     QMainWindow mainWindow;
     mainWindow.setCentralWidget(viewPort);
-    mainWindow.centralWidget()->setMinimumSize(QSize(500, 500));
-//    QGridLayout* layout = new QGridLayout(mainWindow.centralWidget());
-//    layout->setRowMinimumHeight(0, 50);
-//    layout->setColumnMinimumWidth(0,50);
-//    layout->setRowMinimumHeight(2, 50);
-//    layout->setColumnMinimumWidth(2, 50);
-//    layout->addWidget(viewPort, 1,1);
 
     auto timer1 = new QTimer(&mainWindow);
     auto timer2 = new QTimer(&mainWindow);

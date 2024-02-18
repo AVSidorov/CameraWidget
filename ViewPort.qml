@@ -4,30 +4,26 @@ Item {
     id: root
     anchors.fill: parent
     anchors.centerIn: parent
-    width: 700
-    height: 700
+
     signal mouseMoveSignal(obj: Item)
 
     Rectangle {
         id: rect
         anchors.centerIn: parent
-        width: 500
-        height: 500
-        border.width: 3
-        radius: 3;
+        width: 100
+        height: 100
+        anchors.margins: 33
+        border.width: 10
+        radius: border.width;
         clip: true
-
-
-
 
         Image {
             id: frameview
+            // anchors.fill blocks zooming
             width: parent.width
             height: parent.height
             source: "image://provider/default"
-            // sourceSize.width: 900 //TODO From original Pixmap
-            // sourceSize.height: 900
-            visible: true
+
 
             MouseArea {
                 id: frameMouseArea
@@ -45,14 +41,15 @@ Item {
                 }
 
                 onWheel: (wheel) => {
+                    var r = frameview.width/frameview.height
 
                     if (wheel.modifiers & Qt.ShiftModifier) {
                         frameview.width = frameview.width + wheel.angleDelta.y
                     } else if (wheel.modifiers & Qt.ControlModifier) {
                         frameview.height = frameview.height + wheel.angleDelta.y
                     } else {
-                        frameview.width = frameview.width + wheel.angleDelta.y;
-                        frameview.height = frameview.height + wheel.angleDelta.y
+                        frameview.width = frameview.width + wheel.angleDelta.y
+                        frameview.height = frameview.width/r
                     }
                     frameview.width = frameview.width < rect.width ? rect.width : frameview.width
                     frameview.height = frameview.height < rect.height ? rect.height : frameview.height
@@ -70,10 +67,17 @@ Item {
                 onTriggered: () => {
                     frameview.source = ""
                     frameview.source = "image://provider/LiveFrame"
-                    text.text = frameview.sourceSize.toString()
+                    //text.text = frameview.sourceSize.toString()
                     frameview.width = frameview.width > rect.width ? frameview.width : rect.width
                     frameview.height = frameview.height > rect.height ? frameview.height : rect.height
-
+                    var r = frameview.sourceSize.width/frameview.sourceSize.height;
+                    //text.text = r.toString();
+                    rect.width = root.height  * r;
+                    rect.height = rect.width / r;
+                    if (rect.width > root.width | rect.height>root.height){
+                        rect.height = root.width / r
+                        rect.width = rect.height * r
+                    }
                 }
             }
         }
@@ -94,6 +98,7 @@ Item {
                 frameview.height = parent.height
             };
         }
+
         Text {
             id: text
             text: "Hello World!"
@@ -102,6 +107,8 @@ Item {
             color: "black"
             anchors.bottom: parent.bottom
             anchors.right: parent.right
+            visible: false
         }
+
     }
 }

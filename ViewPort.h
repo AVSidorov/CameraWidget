@@ -12,6 +12,7 @@
 #include <QPointF>
 #include <QDebug>
 #include <QQuickItem>
+#include <QGridLayout>
 
 #include "ViewPortImageProvider.h"
 
@@ -26,6 +27,8 @@ public:
     , container(QWidget::createWindowContainer(view,this))
     , imageProvider(new ViewPortImageProvider){
         Q_INIT_RESOURCE(camera);
+        auto layout = new QGridLayout(this);
+        layout->addWidget(container);
 
         imageProvider->setParent(this);
         view->engine()->addImageProvider(QLatin1String("provider"), imageProvider);
