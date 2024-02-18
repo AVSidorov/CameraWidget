@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/camera">
+        <file>camera.qml</file>
+        <file>images/pr.png</file>
+    </qresource>
+</RCC>
