@@ -13,6 +13,8 @@
 #include <QQuickWidget>
 #include <QQmlContext>
 #include <qqml.h>
+#include "CamerViewImageProvider.h"
+#include <QTimer>
 
 class MyClass : public QObject
 {
@@ -25,13 +27,7 @@ public slots:
         qDebug() << "Item dimensions:" << item->width()
                  << item->height();
     }
-//    void cppSlot(const QQuickItem& item) {
-//
-//        qDebug() << "Called the C++ slot with item:" << &item;
-//
-//        qDebug() << "Item dimensions:" << item.width()
-//                 << item.height();
-//    }
+
     void msgSlot(const QString &msg) {
         qDebug() << "Called the C++ slot with message:" << msg;
     }
@@ -44,30 +40,25 @@ public slots:
 #include "main.moc"
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(camera);
     QCoreApplication::setApplicationName("Camera Widget Test");
 
-//    QGuiApplication app(argc, argv);
     QApplication app(argc, argv);
 
-
-    //QQuickView view;
-    //QQuickWidget *view = new QQuickWidget;
     QQuickView *view = new QQuickView();
     QWidget *container = QWidget::createWindowContainer(view);
 //    QWidget *container = QWidget::createWindowContainer(view, nullptr,Qt::Window | Qt::FramelessWindowHint);
 
-//    view->setSource(QUrl::fromLocalFile("camera.qml"));
+
+
+    auto imageProvider = new CamerViewImageProvider;
+    imageProvider->updatePixmap(QPixmap(":/camera/images/pr.png"));
+    view->engine()->addImageProvider(QLatin1String("colors"), imageProvider);
+
     view->setSource(QUrl("qrc:/camera/camera.qml"));
-//    if (view.status() == QQuickView::Error)
-//        return -1;
 
     QObject *root= view->rootObject();
-//    qDebug() << root;
-//    qDebug() << dynamic_cast<QQuickItem*>(root);
-//    QQmlContext* const context = qmlContext(root);
-//    QString id = context->nameForObject(root);
-//    qDebug() << id;
-//    QObject *rect = root->findChild<QObject*>("rect");
+
     MyClass myClass;
 
     QObject::connect(root, SIGNAL(qmlSignal(QQuickItem*)),
@@ -77,12 +68,25 @@ int main(int argc, char *argv[])
 
     QObject::connect(root, SIGNAL(mouseMoveSignal(QQuickItem *)),
                      &myClass, SLOT(mouseSlot(QQuickItem*)));
-    //   container->show();
 
     QMainWindow mainWindow;
     mainWindow.setCentralWidget(container);
-//    mainWindow.setWindowFlag(Qt::FramelessWindowHint);
-//    mainWindow.setWindowFlag(Qt::SplashScreen);
+    auto timer1 = new QTimer(&mainWindow);
+    auto timer2 = new QTimer(&mainWindow);
+    QObject::connect(timer1, &QTimer::timeout, [&]{
+        qDebug()<<"image 1";
+        imageProvider->updatePixmap(QPixmap(":/camera/images/pr.png"));
+    });
+    QObject::connect(timer2, &QTimer::timeout, [&]{
+        qDebug()<<"image 2";
+        imageProvider->updatePixmap(QPixmap(":/camera/images/SWTestbild.png"));
+    });
+
+    int period = 10000;
+    timer1->start(period);
+    QTimer::singleShot(period/2,[&timer2, period] { timer2->start(period); });
+
+    mainWindow.centralWidget()->setMinimumSize(QSize(500, 500));
     mainWindow.show();
     return app.exec();
 }

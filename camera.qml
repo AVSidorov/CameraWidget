@@ -26,7 +26,8 @@ Item{
             id: frameview
             width: 900
             height: 900
-            source: "images/pr.png"
+            // source: "images/pr.png"
+            source: "image://colors/red"
             sourceSize.width: 900
             sourceSize.height: 900
             visible: true
@@ -43,6 +44,17 @@ Item{
                     root.mouseMoveSignal(mousePos)
                 }
             }
+            Timer{
+                id: frameRefresher
+                interval: 25
+                repeat: true
+                onTriggered: ()=> {
+                    frameview.source = ""
+                    frameview.source = "image://colors/LiveFrame"
+                    frameview.width = frameview.width > rect.width ? frameview.width : rect.width
+                    frameview.height = frameview.height > rect.height ? frameview.height : rect.height
+                }
+            }
         }
 
         MouseArea {
@@ -52,13 +64,13 @@ Item{
 
             drag.target: frameview
             drag.filterChildren: true
-            drag.minimumX: -frameview.width+10
-            drag.maximumX: rect.width-10
-            drag.minimumY: -frameview.height + 10
-            drag.maximumY: rect.height - 10
-            // onClicked: frameview.visible = frameview.visible ^ true;
+            drag.minimumX: -frameview.width+rect.width
+            drag.maximumX: 0
+            drag.minimumY: -frameview.height + rect.height
+            drag.maximumY: 0
             onClicked: ()=>{
                 root.qmlSignal(frameview)
+                frameRefresher.start()
                 // root.msgSignal("Hello from QML")
             }
             onDoubleClicked: ()=>{
@@ -78,9 +90,15 @@ Item{
                     frameview.height = frameview.height + wheel.angleDelta.y
                 }
                 else {
-                    frameview.width = frameview.width + wheel.angleDelta.y
+                    frameview.width =  frameview.width + wheel.angleDelta.y;
                     frameview.height = frameview.height + wheel.angleDelta.y
                 }
+                frameview.width = frameview.width < rect.width ? rect.width : frameview.width
+                frameview.height = frameview.height < rect.height ? rect.height : frameview.height
+                frameview.x = frameview.x > 0 ? frameview.x = 0 : frameview.x
+                frameview.x = frameview.x < -frameview.width + rect.width ? -frameview.width + rect.width: frameview.x
+                frameview.y = frameview.y > 0 ? frameview.y = 0 : frameview.y
+                frameview.y = frameview.y < -frameview.height + rect.height ? -frameview.height + rect.height: frameview.y
             }
 
         }
