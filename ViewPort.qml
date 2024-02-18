@@ -24,11 +24,23 @@ Item {
             height: parent.height
             source: "image://provider/default"
 
-
             MouseArea {
                 id: frameMouseArea
                 hoverEnabled: true
                 anchors.fill: parent
+
+                drag.target: frameview
+                drag.filterChildren: true
+                drag.minimumX: -frameview.width + rect.width
+                drag.maximumX: 0
+                drag.minimumY: -frameview.height + rect.height
+                drag.maximumY: 0
+                onDoubleClicked: () => {
+                    frameview.x = 0
+                    frameview.y = 0
+                    frameview.width = rect.width
+                    frameview.height = rect.height
+                };
 
                 Item {
                     id: mousePos
@@ -51,12 +63,6 @@ Item {
                         frameview.width = frameview.width + wheel.angleDelta.y
                         frameview.height = frameview.width/r
                     }
-                    frameview.width = frameview.width < rect.width ? rect.width : frameview.width
-                    frameview.height = frameview.height < rect.height ? rect.height : frameview.height
-                    frameview.x = frameview.x > 0 ? frameview.x = 0 : frameview.x
-                    frameview.x = frameview.x < -frameview.width + rect.width ? -frameview.width + rect.width : frameview.x
-                    frameview.y = frameview.y > 0 ? frameview.y = 0 : frameview.y
-                    frameview.y = frameview.y < -frameview.height + rect.height ? -frameview.height + rect.height : frameview.y
                 }
             }
             Timer {
@@ -67,48 +73,27 @@ Item {
                 onTriggered: () => {
                     frameview.source = ""
                     frameview.source = "image://provider/LiveFrame"
-                    //text.text = frameview.sourceSize.toString()
-                    frameview.width = frameview.width > rect.width ? frameview.width : rect.width
-                    frameview.height = frameview.height > rect.height ? frameview.height : rect.height
-                    var r = frameview.sourceSize.width/frameview.sourceSize.height;
-                    //text.text = r.toString();
+
+
+                    // adjust rect
+                    var r = frameview.sourceSize.width/frameview.sourceSize.height
                     rect.width = root.height  * r;
                     rect.height = rect.width / r;
                     if (rect.width > root.width | rect.height>root.height){
                         rect.height = root.width / r
                         rect.width = rect.height * r
                     }
+
+                    // adjust frame to rect
+                    frameview.width = frameview.width < rect.width ? rect.width : frameview.width
+                    frameview.height = frameview.height < rect.height ? rect.height : frameview.height
+                    frameview.x = frameview.x > 0 ?  0 : frameview.x
+                    frameview.x = frameview.x < -frameview.width + rect.width ? -frameview.width + rect.width : frameview.x
+                    frameview.y = frameview.y > 0 ?  0 : frameview.y
+                    frameview.y = frameview.y < -frameview.height + rect.height ? -frameview.height + rect.height : frameview.y
+
                 }
             }
         }
-
-        MouseArea {
-            id: rectMouseArea
-            anchors.fill: parent
-            drag.target: frameview
-            drag.filterChildren: true
-            drag.minimumX: -frameview.width + rect.width
-            drag.maximumX: 0
-            drag.minimumY: -frameview.height + rect.height
-            drag.maximumY: 0
-            onDoubleClicked: () => {
-                frameview.x = 0
-                frameview.y = 0
-                frameview.width = parent.width
-                frameview.height = parent.height
-            };
-        }
-
-        Text {
-            id: text
-            text: "Hello World!"
-            // font.family: "Helvetica"
-            font.pointSize: 24
-            color: "black"
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            visible: false
-        }
-
     }
 }

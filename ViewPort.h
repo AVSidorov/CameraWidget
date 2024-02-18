@@ -19,8 +19,6 @@
 class ViewPort: public QWidget{
     Q_OBJECT
 
-    Q_PROPERTY(QSize pixmapSize READ pixmapSize NOTIFY pixmapUpdated)
-    QML_ELEMENT
 public:
     ViewPort(QWidget* parent): QWidget(parent)
     , view(new QQuickView())
@@ -44,7 +42,7 @@ public:
             return;
         m_pixmap = std::move(pixmap);
         imageProvider->updatePixmap(m_pixmap.get());
-        qDebug() << "New Pixmap size: " << m_pixmap->size();
+//        qDebug() << "New Pixmap size: " << m_pixmap->size();
         emit pixmapUpdated();
     };
 
