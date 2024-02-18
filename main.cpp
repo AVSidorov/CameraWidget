@@ -1,43 +1,11 @@
-// Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
-#include <QGuiApplication>
-#include <QQmlEngine>
-#include <QQuickView>
-#include <QQuickItem>
-#include <QVariant>
-#include <QWidget>
-//#include <QtQuickWidgets/QQuickWidget>
 #include <QApplication>
 #include <QMainWindow>
-#include <QQuickWidget>
-#include <QQmlContext>
-#include <qqml.h>
-#include "CamerViewImageProvider.h"
 #include <QTimer>
+#include <QPixmap>
+#include <QGridLayout>
 
-class MyClass : public QObject
-{
-Q_OBJECT
-public slots:
-    void cppSlot(QQuickItem *item) {
+#include "ViewPort.h"
 
-        qDebug() << "Called the C++ slot with item:" << item;
-
-        qDebug() << "Item dimensions:" << item->width()
-                 << item->height();
-    }
-
-    void msgSlot(const QString &msg) {
-        qDebug() << "Called the C++ slot with message:" << msg;
-    }
-
-    void mouseSlot(QQuickItem *item) {
-
-        qDebug() << "x: " << item->x() << " y: " << item->y();
-    }
-};
-#include "main.moc"
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(camera);
@@ -45,48 +13,40 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    QQuickView *view = new QQuickView();
-    QWidget *container = QWidget::createWindowContainer(view);
-//    QWidget *container = QWidget::createWindowContainer(view, nullptr,Qt::Window | Qt::FramelessWindowHint);
-
-
-
-    auto imageProvider = new CamerViewImageProvider;
-    imageProvider->updatePixmap(QPixmap(":/camera/images/pr.png"));
-    view->engine()->addImageProvider(QLatin1String("colors"), imageProvider);
-
-    view->setSource(QUrl("qrc:/camera/camera.qml"));
-
-    QObject *root= view->rootObject();
-
-    MyClass myClass;
-
-    QObject::connect(root, SIGNAL(qmlSignal(QQuickItem*)),
-                     &myClass, SLOT(cppSlot(QQuickItem*)));
-    QObject::connect(root, SIGNAL(msgSignal(QString)),
-                     &myClass, SLOT(msgSlot(QString)));
-
-    QObject::connect(root, SIGNAL(mouseMoveSignal(QQuickItem *)),
-                     &myClass, SLOT(mouseSlot(QQuickItem*)));
+    ViewPort *viewPort = new ViewPort(nullptr);
+    viewPort->updatePixmap(std::make_shared<QPixmap>(":/camera/images/pr.png"));
 
     QMainWindow mainWindow;
-    mainWindow.setCentralWidget(container);
+    mainWindow.setCentralWidget(viewPort);
+    mainWindow.centralWidget()->setMinimumSize(QSize(500, 500));
+//    QGridLayout* layout = new QGridLayout(mainWindow.centralWidget());
+//    layout->setRowMinimumHeight(0, 50);
+//    layout->setColumnMinimumWidth(0,50);
+//    layout->setRowMinimumHeight(2, 50);
+//    layout->setColumnMinimumWidth(2, 50);
+//    layout->addWidget(viewPort, 1,1);
+
     auto timer1 = new QTimer(&mainWindow);
     auto timer2 = new QTimer(&mainWindow);
+
     QObject::connect(timer1, &QTimer::timeout, [&]{
         qDebug()<<"image 1";
-        imageProvider->updatePixmap(QPixmap(":/camera/images/pr.png"));
+        viewPort->updatePixmap(std::make_shared<QPixmap>(":/camera/images/pr.png"));
     });
     QObject::connect(timer2, &QTimer::timeout, [&]{
         qDebug()<<"image 2";
-        imageProvider->updatePixmap(QPixmap(":/camera/images/SWTestbild.png"));
+        viewPort->updatePixmap(std::make_shared<QPixmap>(":/camera/images/SWTestbild.png"));
     });
 
     int period = 10000;
     timer1->start(period);
     QTimer::singleShot(period/2,[&timer2, period] { timer2->start(period); });
 
-    mainWindow.centralWidget()->setMinimumSize(QSize(500, 500));
+
+
+
+
+
     mainWindow.show();
     return app.exec();
 }

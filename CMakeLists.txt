@@ -15,6 +15,17 @@ qt_add_executable(${PROJECT_NAME}
         camera.qrc
 )
 
+#qt_add_qml_module(${PROJECT_NAME}
+#        URI ops.camera.viewport
+#        VERSION 1.0
+#)
+# it's possible will works with  qt5
+#set_target_properties(foo PROPERTIES
+#        QT_QML_MODULE_VERSION 1.0
+#        QT_QML_MODULE_URI     Foo
+#)
+#
+#qt6_qml_type_registration(foo)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Core
     Qt6::Gui
